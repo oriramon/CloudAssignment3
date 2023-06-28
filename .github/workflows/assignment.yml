@@ -6,13 +6,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
     - name: Set DATE and init log file
       run: | 
         DATE=$(date -Iminutes)
-        echo "$DATE" >> ./log.txt
-        echo "Ori Ramon, Lucy Hass" >> ./log.txt
+        echo "$DATE" > /tmp/log
+        echo "Ori Ramon, Lucy Hass" >> /tmp/log
+    - name: Checkout
+      uses: actions/checkout@v3
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
     - name: Build and export
@@ -22,23 +22,25 @@ jobs:
         file: ./Dockerfile
         tags: mealsvr:latest
         outputs: type=docker,dest=/tmp/image.tar
-    - name: Log Error Message
+    - name: check image is exported
+      run: ls /tmp
+    - name: Log Error Message - Failure
       if: failure()
-      run: echo "image not able to be built" >> ./log.txt
+      run: echo "image not able to be built" >> /tmp/log
     - name: Log Success Message
-      run: echo "image successfully built" >> ./log.txt
+      run: echo "image successfully built" >> /tmp/log
     - name: Upload log
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        name: log1
-        path: ./log.txt
+        name: log
+        path: /tmp/log
         # archive-format: none
     # only executed if build successful
     - name: Upload image
       uses: actions/upload-artifact@v3
       with:
-        name: mealsvr
+        name: image
         path: /tmp/image.tar
     
   # runs image exported from build job in container, uses pytest to test service.
@@ -48,10 +50,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 1. download image, run in a container
-      - name: Download artifact
-        uses: actions/download-artifact@v3 #download all artifacts
+      - name: Download artifacts (image, log) from build job
+        uses: actions/download-artifact@v3
       - name: Load Docker image from previous job
-        run: docker load --input mealsvr/image.tar
+        run: docker load --input /tmp/image.tar
       - name: check mealsvr image is loaded
         run: docker image ls
       - name: run image in container
@@ -62,12 +64,13 @@ jobs:
         if: failure()
         run: echo "Container failed to run" >> ./log.txt
       - name: Log container status - success
+        if: success()
         run: echo "Container up and running" >> ./log.txt
 
       # 2. set up python, install dependencies
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install Python
+      - name: Set up Python
         uses: actions/setup-python@v4
       - name: Install dependencies
         run: |
@@ -85,14 +88,14 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: pytest_results
+          name: assn3_test_results
           path: tests/assn3_test_results.txt
       - name: upload log
         if: always()
         uses: actions/upload-artifact@v3
         with:
           name: log
-          path: ./log.txt
+          path: /tmp/log
   
   # runs image in container. issue requests to service, record results in log file.
   # query:
