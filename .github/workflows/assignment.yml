@@ -34,14 +34,14 @@ jobs:
         name: mealsvr
         path: /tmp/image.tar
     
-  # runs image from build job in container, uses pytest to test service. if successful, proceeds to query job.
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-  # runs image in container. issue requests to service, record results in log file.
-  query:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
+#   # runs image from build job in container, uses pytest to test service. if successful, proceeds to query job.
+#   test:
+#     needs: build
+#     runs-on: ubuntu-latest
+#     steps:
+#   # runs image in container. issue requests to service, record results in log file.
+#   query:
+#     needs: build
+#     runs-on: ubuntu-latest
+#     steps:
 
