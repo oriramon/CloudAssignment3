@@ -39,15 +39,15 @@ def test_add_bad_dish():
     dish = {"name": "blah"}
     response = connectionController.http_post("dishes", dish)
     return_code = int(response.json())
-    assert response.status_code == -3
-    assert ((return_code == 404) or (return_code == 400)) or (return_code == 422)
+    assert return_code == -3
+    assert ((response.status_code == 404) or (response.status_code == 400)) or (response.status_code == 422)
 
 def test_add_existing_dish():
     dish = {"name": "orange"}
     response = connectionController.http_post("dishes", dish)
     return_code = int(response.json())
-    assert response.status_code == -2
-    assert ((return_code == 404) or (return_code == 400)) or (return_code == 422)
+    assert return_code == -2
+    assert ((response.status_code == 404) or (response.status_code == 400)) or (response.status_code == 422)
 
 def test_add_meal():
     global orange_id
@@ -61,7 +61,7 @@ def test_get_meals():
     global delicious_id
     response = connectionController.http_get(f"meals")
     meal = response.json()
-    cal = meal[delicious_id]["cal"]
+    cal = meal[str(delicious_id)]["cal"]
     assert len(meal) == 1
     assert (cal >= 400) and (cal <= 500)
     assert response.status_code == 200
