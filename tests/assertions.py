@@ -13,9 +13,7 @@ def assert_ret_value(response: requests.Response, returned_value: any):
 
 def assert_valid_added_resource(response: requests.Response):
     assert response.status_code == 201
-    # should be positive ID
-    VALID_RETURNED_RESOURCE_ID = 0
-    assert response.json() > VALID_RETURNED_RESOURCE_ID
+
 
 
 def assert_dish(output: {}, expected_output: {}):

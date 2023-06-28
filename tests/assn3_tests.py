@@ -7,6 +7,7 @@ from restApiController import *
 orange_id = None
 spaghetti_id = None
 applepie_id = None
+delicious_id = None
 
 def test_add_three_dishes():
     global orange_id
@@ -39,26 +40,28 @@ def test_add_bad_dish():
     response = connectionController.http_post("dishes", dish)
     return_code = int(response.json())
     assert response.status_code == -3
-    assert (return_code == 404) or (return_code == 400) or (return_code == 422)
+    assert ((return_code == 404) or (return_code == 400)) or (return_code == 422)
 
 def test_add_existing_dish():
     dish = {"name": "orange"}
     response = connectionController.http_post("dishes", dish)
     return_code = int(response.json())
     assert response.status_code == -2
-    assert (return_code == 404) or (return_code == 400) or (return_code == 422)
+    assert ((return_code == 404) or (return_code == 400)) or (return_code == 422)
 
 def test_add_meal():
     global orange_id
     global spaghetti_id
     global applepie_id
+    global delicious_id
     delicious_id = add_meal("delicious", orange_id, spaghetti_id, applepie_id)
     assert int(delicious_id) > 0
 
 def test_get_meals():
+    global delicious_id
     response = connectionController.http_get(f"meals")
     meal = response.json()
-    cal = meal["cal"]
+    cal = meal[delicious_id]["cal"]
     assert len(meal) == 1
     assert (cal >= 400) and (cal <= 500)
     assert response.status_code == 200
