@@ -2,7 +2,7 @@ name: build-test-query
 on:
   push
 jobs:
-  # builds the image for your service. if successful, proceeds to test job.
+  # builds the image for the service. if successful, proceeds to test job.
   build:
     runs-on: ubuntu-latest
     steps:
@@ -74,7 +74,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest
           pip install requests
-          pip install database
           pip install json
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       # 3. run pytest tests, check results
