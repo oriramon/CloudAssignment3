@@ -9,8 +9,8 @@ jobs:
     - name: Set DATE and init log file
       run: | 
         DATE=$(date -Iminutes)
-        echo "$DATE" > /tmp/log
-        echo "Ori Ramon, Lucy Hass" >> /tmp/log
+        echo "$DATE" > /tmp/log.txt
+        echo "Ori Ramon, Lucy Hass" >> /tmp/log.txt
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set up Docker Buildx
@@ -26,15 +26,15 @@ jobs:
       run: ls /tmp
     - name: Log Error Message - Failure
       if: failure()
-      run: echo "image not able to be built" >> /tmp/log
+      run: echo "image not able to be built" >> /tmp/log.txt
     - name: Log Success Message
-      run: echo "image successfully built" >> /tmp/log
+      run: echo "image successfully built" >> /tmp/log.txt
     - name: Upload log
       if: always()
       uses: actions/upload-artifact@v3
       with:
         name: log
-        path: /tmp/log
+        path: /tmp/log.txt
         # archive-format: none
     # only executed if build successful
     - name: Upload image
@@ -50,18 +50,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 1. download image, run in a container
-      # - name: Download artifacts (image, log) from build job
-      #   uses: actions/download-artifact@v3
-      - name: Download image from build job
+      - name: Download artifacts (image, log) from build job
         uses: actions/download-artifact@v3
-        with:
-          name: image
-          path: /tmp
-      - name: Download log from build job
-        uses: actions/download-artifact@v3
-        with:
-          name: log
-          path: /tmp
       - name: Load Docker image from previous job
         run: docker load --input /tmp/image.tar
       - name: check mealsvr image is loaded
@@ -105,7 +95,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: log
-          path: /tmp/log
+          path: /tmp/log.txt
   
   # runs image in container. issue requests to service, record results in log file.
   # query:
