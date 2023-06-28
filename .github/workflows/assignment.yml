@@ -79,8 +79,8 @@ jobs:
       - name: Test with pytest
         run: |
           cd tests
-          echo pytest -v tests.py
-        #pytest -v tests.py > assn3_tests.txt
+          pytest -v tests.py > assn3_test_results.txt
+        # echo pytest -v tests.py
       - name: upload test results
         if: always()
         uses: actions/upload-artifact@v3
