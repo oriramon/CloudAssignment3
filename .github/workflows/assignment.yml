@@ -1,3 +1,4 @@
+
 name: build-test-query
 on:
   push
@@ -50,8 +51,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 1. download image, run in a container
-      - name: Download artifacts (image, log) from build job
+      # - name: Download artifacts (image, log) from build job
+      #   uses: actions/download-artifact@v3
+      - name: Download image from build job
         uses: actions/download-artifact@v3
+        with:
+          name: image
+          path: /tmp
+      - name: Download log from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: log
+          path: /tmp
       - name: Load Docker image from previous job
         run: docker load --input /tmp/image.tar
       - name: check mealsvr image is loaded
@@ -62,10 +73,10 @@ jobs:
         run: docker ps
       - name: Log container status - failure
         if: failure()
-        run: echo "Container failed to run" >> ./log.txt
+        run: echo "Container failed to run" >> /tmp/log.txt
       - name: Log container status - success
         if: success()
-        run: echo "Container up and running" >> ./log.txt
+        run: echo "Container up and running" >> /tmp/log.txt
 
       # 2. set up python, install dependencies
       - name: Checkout
@@ -102,4 +113,3 @@ jobs:
   #   needs: build
   #   runs-on: ubuntu-latest
   #   steps:
-
