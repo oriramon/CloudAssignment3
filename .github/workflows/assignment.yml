@@ -11,7 +11,7 @@ jobs:
     - name: Set DATE and init log file
       run: | 
         DATE=$(date -Iminutes)
-        echo "DATE: $DATE" >> ./log.txt
+        echo "$DATE" >> ./log.txt
         echo "Ori Ramon, Lucy Hass" >> ./log.txt
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
@@ -41,14 +41,43 @@ jobs:
         name: mealsvr
         path: /tmp/image.tar
     
-#   # runs image from build job in container, uses pytest to test service. if successful, proceeds to query job.
-#   test:
-#     needs: build
-#     runs-on: ubuntu-latest
-#     steps:
-#   # runs image in container. issue requests to service, record results in log file.
-#   query:
-#     needs: build
-#     runs-on: ubuntu-latest
-#     steps:
+  # runs image exported from build job in container, uses pytest to test service.
+  # if successful, proceeds to query job.
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v3
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      # build image uploaded from build job, run container.
+      - name: Download image
+        uses: actions/download-artifact@v3
+        with:
+          name: mealsvr
+          path: /tmp/image.tar
+      - name: Load image
+        run: docker load -i /tmp/image.tar
+      - name: Run container
+        run: docker run -d --name mealsvr-container mealsvr
+
+      - name: Run tests
+        run: pytest -v tests/assn3_tests.py > assn3_test_results.txt
+      
+      - name: Stop and remove container
+        run: docker stop mealsvr-container && docker rm mealsvr-container
+
+  # runs image in container. issue requests to service, record results in log file.
+  # query:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
 
