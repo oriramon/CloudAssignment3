@@ -60,9 +60,9 @@ jobs:
         run: docker ps
       - name: Log container status - failure
         if: failure()
-        run: echo "Container failed to run" > ./log.txt
+        run: echo "Container failed to run" >> ./log.txt
       - name: Log container status - success
-        run: echo "Container up and running" > ./log.txt
+        run: echo "Container up and running" >> ./log.txt
 
       # 2. set up python, install dependencies
       - name: Checkout
@@ -74,6 +74,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest
           pip install requests
+          pip install database
+          pip install json
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       # 3. run pytest tests, check results
       - name: Test with pytest
