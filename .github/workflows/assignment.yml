@@ -78,8 +78,8 @@ jobs:
       # 3. run pytest tests, check results
       - name: Test with pytest
         run: |
-          cd ./tests
-          pytest -v tests.py > assn3_tests.py
+          cd tests
+          pytest -v tests.py > assn3_tests.txt
       - name: upload test results
         if: always()
         uses: actions/upload-artifact@v3
