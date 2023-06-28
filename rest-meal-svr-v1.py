@@ -46,13 +46,12 @@ class Dishes(Resource):
             dishes[nextID] = {keys[k]: sum(d[k] for d in response.json() if k in keys) for k in set(k for d in response.json() for k in d if k in keys)}
             dishes[nextID]["ID"] = nextID
             dishes[nextID]["name"] = query
-            # print(dishes)
             return nextID, 201
         else:
             return -4, 504
     # GET will return the JSON object listing all dishes, indexed by ID
     def get(self):
-        return dishes
+        return dishes, 200
     
     #Deleting all dishes not allowed
     def delete(self):
@@ -174,7 +173,7 @@ class Meal_ID(Resource):
                 meals[id]["sodium"] =  float(dishes[appetizer]["sodium"]) + float(dishes[main]["sodium"]) + float(dishes[dessert]["sodium"])
                 meals[id]["sugar"] = float(dishes[appetizer]["sugar"]) + float(dishes[main]["sugar"]) + float(dishes[dessert]["sugar"])
 
-                return id, 201
+                return id, 200
             
             # If one of the sent dishes does not exists
             else:
