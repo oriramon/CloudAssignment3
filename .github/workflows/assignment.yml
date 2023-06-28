@@ -27,8 +27,14 @@ jobs:
       run: echo "image not able to be built" >> ./log.txt
     - name: Log Success Message
       run: echo "image successfully built" >> ./log.txt
-    - name: Upload artifact
+    - name: Upload log
       if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: log
+        path: ./log.txt
+    # only executed if build successful
+    - name: Upload image
       uses: actions/upload-artifact@v3
       with:
         name: mealsvr
