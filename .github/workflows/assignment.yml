@@ -1,4 +1,4 @@
-name: build-test-push-v4
+name: build-test-query
 on:
   push
 jobs:
@@ -11,7 +11,7 @@ jobs:
     - name: Set DATE and init log file
       run: | 
         echo "DATE=$(date -Iminutes)" >> $GITHUB_ENV
-        echo "${{ env.DATE }}" >> ./log.txt
+        echo "DATE: ${{ env.DATE }}" >> ./log.txt
         echo "Ori Ramon, Lucy Hass" >> ./log.txt
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
@@ -33,6 +33,7 @@ jobs:
       with:
         name: log
         path: ./log.txt
+        archive-format: none
     # only executed if build successful
     - name: Upload image
       uses: actions/upload-artifact@v3
