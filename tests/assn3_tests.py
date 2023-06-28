@@ -26,26 +26,26 @@ def test_get_orange_by_ID():
     sodium = int(response.json()["sodium"])
     
     assert (sodium >= .9) and (sodium <= 1.1)
-    assert response == 200
+    assert response.status_code == 200
 
 def test_get_dishes():
     response = connectionController.http_get("dishes")
     dishes = response.json()
     assert len(dishes) == 3
-    assert response == 200
+    assert response.status_code == 200
 
 def test_add_bad_dish():
     dish = {"name": "blah"}
     response = connectionController.http_post("dishes", dish)
     return_code = int(response.json())
-    assert response == -3
+    assert response.status_code == -3
     assert (return_code == 404) or (return_code == 400) or (return_code == 422)
 
 def test_add_existing_dish():
     dish = {"name": "orange"}
     response = connectionController.http_post("dishes", dish)
     return_code = int(response.json())
-    assert response == -2
+    assert response.status_code == -2
     assert (return_code == 404) or (return_code == 400) or (return_code == 422)
 
 def test_add_meal():
@@ -61,7 +61,7 @@ def test_get_meals():
     cal = meal["cal"]
     assert len(meal) == 1
     assert (cal >= 400) and (cal <= 500)
-    assert response == 200
+    assert response.status_code == 200
 
 def test_add_existing_meal():
     global orange_id
@@ -76,5 +76,5 @@ def test_add_existing_meal():
     response = connectionController.http_post("meals", meal)
     return_code = int(response.json())
     
-    assert (response == 400) or (response == 422)
+    assert (response.status_code == 400) or (response.status_code == 422)
     assert return_code == -2
