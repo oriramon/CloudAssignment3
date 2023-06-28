@@ -10,25 +10,6 @@ dishes = dict()
 meals = dict()
 parser = reqparse.RequestParser()
 
-#test 
-dishes = {
-    1: {"name": "apple", "ID": 1, "cal": 2, "size": 34.0, "sodium": 70, "sugar": 8},
-    2: {"name": "focaccia", "ID": 2, "cal": 9, "size": 100.0, "sodium": 570, "sugar": 1.8},
-    3: {"name": "Chicken", "ID": 3, "cal": 1, "size": 10.0, "sodium": 20, "sugar": 3},
-}
-
-#test
-meals = {
-    1: {
-    "name": "chicken special", 
-    "ID": 1,
-    "appetizer": 3,
-    "main": 2,
-    "dessert": 1,
-    "cal": 12,
-    "sodium": 660,
-    "sugar": 12.8},
-}
 
 class Dishes(Resource):
     # POST adds a dish of the given name. If successful, it returns the dish ID, a positive integer, and the code 201 (Resource successfully created).
