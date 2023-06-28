@@ -33,7 +33,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: log
-        path: /log.txt
+        path: ./log.txt
         archive-format: none
     # only executed if build successful
     - name: Upload image
