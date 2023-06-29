@@ -50,9 +50,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      # 1. download image, run in a container
-      # - name: Download artifacts (image, log) from build job
-      #   uses: actions/download-artifact@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+      # download image, run in a container
       - name: Download image from build job
         uses: actions/download-artifact@v3
         with:
@@ -78,9 +78,7 @@ jobs:
         if: success()
         run: echo "Container up and running" >> /tmp/log.txt
 
-      # 2. set up python, install dependencies
-      - name: Checkout
-        uses: actions/checkout@v3
+      # set up python, install dependencies
       - name: Set up Python
         uses: actions/setup-python@v4
       - name: Install dependencies
@@ -89,12 +87,18 @@ jobs:
           pip install pytest
           pip install requests
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      # 3. run pytest tests, check results
+      # run tests with pytest, check results
       - name: Test with pytest
         run: |
           cd tests
           pytest -v assn3_tests.py > assn3_test_results.txt
-        # echo pytest -v tests.py
+      # update log with test results
+      - name: Log test results - success
+        if: success()
+        run: echo "tests succeeded" >> /tmp/log.txt
+      - name: Log test results - failure
+        if: failure()
+        run: echo "tests failed" >> /tmp/log.txt
       - name: upload test results
         if: always()
         uses: actions/upload-artifact@v3
@@ -109,7 +113,39 @@ jobs:
           path: /tmp/log.txt
   
   # runs image in container. issue requests to service, record results in log file.
-  # query:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   steps:
+  query:
+    needs: test
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@v3
+      # download image, run in a container
+      - name: Download image from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: image
+          path: /tmp
+      # - name: Download log from build job
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: log
+      #     path: /tmp
+      - name: Load Docker image from previous job
+        run: docker load --input /tmp/image.tar
+      - name: check mealsvr image is loaded
+        run: docker image ls
+      - name: run image in container
+        run: docker run -p8000:8000 mealsvr &
+      - name: check container is running
+        run: docker ps
+      # run queries, upload responses
+      - name: run queries
+        run: python query.py
+      - name: upload responses
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: responses
+          path: /tmp/response.txt
+        
+      
