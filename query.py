@@ -11,7 +11,7 @@ with open('query.txt', 'r') as query_file:
             
             # Make a POST request to the API
             url = "http://127.0.0.1:8000/dishes/"
-            headers = {"Content-Type": "application/json"}}
+            headers = {"Content-Type": "application/json"}
             id = requests.post(url, , headers=headers, data={'name': line})
             # payload={}
             response = requests.get(f'{url}/{id}', headers=headers)
