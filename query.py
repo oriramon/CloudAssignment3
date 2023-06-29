@@ -10,14 +10,16 @@ with open('query.txt', 'r') as query_file:
             line = line.strip()
             
             # Make a POST request to the API
-            id = requests.post('http://127.0.0.1:8000/dishes', json={'name': line})
-            
-            response = requests.get(f'http://127.0.0.1:8000/dishes/{id}')
+            url = "http://127.0.0.1:8000/dishes/"
+            headers = {"Content-Type": "application/json"}}
+            id = requests.post(url, , headers=headers, data={'name': line})
+            # payload={}
+            response = requests.get(f'{url}/{id}', headers=headers)
             # Extract the data from the response JSON
             data = response.json()
-            calories = data.get('calories', '')
-            sodium = data.get('sodium', '')
-            sugar = data.get('sugar', '')
+            calories = data.get('calories')
+            sodium = data.get('sodium')
+            sugar = data.get('sugar')
             
             # Write the response to response.txt
             response_file.write(f'{line} contains {calories} calories, {sodium} mgs of sodium, and {sugar} grams of sugar\n')
