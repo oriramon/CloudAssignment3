@@ -10,8 +10,9 @@ with open('query.txt', 'r') as query_file:
             line = line.strip()
             
             # Make a POST request to the API
-            response = requests.post('http://127.0.0.1:8000/dishes', json={'name': line})
+            id = requests.post('http://127.0.0.1:8000/dishes', json={'name': line})
             
+            response = requests.get(f'http://127.0.0.1:8000/dishes/{id}')
             # Extract the data from the response JSON
             data = response.json()
             calories = data.get('calories', '')
