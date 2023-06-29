@@ -1,4 +1,5 @@
 import requests
+import json
 
 # Open query.txt file for reading
 with open('query.txt', 'r') as query_file:
@@ -7,19 +8,17 @@ with open('query.txt', 'r') as query_file:
         # Iterate over each line in query.txt
         for line in query_file:
             # Remove leading and trailing whitespace from the line
-            line = line.strip()
-            
+            query = line.strip()
             # Make a POST request to the API
-            url = "http://127.0.0.1:8000/dishes/"
+            url = "http://127.0.0.1:8000/dishes"
             headers = {"Content-Type": "application/json"}
-            id = requests.post(url, , headers=headers, data={'name': line})
-            # payload={}
+            post = requests.post(url, headers=headers, data=json.dumps({'name': query}))
+            id = int(post.json())
             response = requests.get(f'{url}/{id}', headers=headers)
             # Extract the data from the response JSON
             data = response.json()
-            calories = data.get('calories')
+            calories = data.get('cal')
             sodium = data.get('sodium')
             sugar = data.get('sugar')
-            
             # Write the response to response.txt
-            response_file.write(f'{line} contains {calories} calories, {sodium} mgs of sodium, and {sugar} grams of sugar\n')
+            response_file.write(f'{query} contains {calories} calories, {sodium} mgs of sodium, and {sugar} grams of sugar\n')
