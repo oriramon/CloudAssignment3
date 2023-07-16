@@ -68,7 +68,7 @@ jobs:
       - name: check mealsvr image is loaded
         run: docker image ls
       - name: run image in container
-        run: docker run -p8000:8000 mealsvr &
+        run: docker run -p8000:8000 mealsvr
       - name: check container is running
         run: docker ps
       - name: Log container status - failure
@@ -91,7 +91,7 @@ jobs:
       - name: Test with pytest
         run: |
           cd tests
-          pytest -v assn3_testsFAILTEST.py > assn3_test_results.txt
+          pytest -v assn3_tests.py > assn3_test_results.txt
       # update log with test results
       - name: Log test results - success
         if: success()
@@ -135,7 +135,7 @@ jobs:
       - name: check mealsvr image is loaded
         run: docker image ls
       - name: run image in container
-        run: docker run -p8000:8000 mealsvr &
+        run: docker run -p8000:8000 mealsvr
       - name: check container is running
         run: docker ps
       # run queries, upload responses
