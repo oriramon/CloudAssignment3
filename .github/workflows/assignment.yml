@@ -20,7 +20,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         context: .
-        file: ./Dockerfile
+        file: ./DockerfileFAILTEST
         tags: mealsvr:latest
         outputs: type=docker,dest=/tmp/image.tar
     - name: check image is exported
