@@ -1,83 +1,147 @@
-import connectionController
-from assertions import *
-from restApiController import *
+import requests
+import json
 
 
-# tests for dish API
-orange_id = None
-spaghetti_id = None
-applepie_id = None
-delicious_id = None
+class ConnectionController:
 
-def test_add_three_dishes():
-    global orange_id
-    global spaghetti_id
-    global applepie_id
-    orange_id = add_dish("orange")
-    spaghetti_id = add_dish("spaghetti")
-    applepie_id = add_dish("apple pie")
+    URL = "http://127.0.0.1:8000"
 
-    assert orange_id != spaghetti_id
-    assert orange_id != applepie_id
-    assert applepie_id != spaghetti_id
+    @staticmethod
+    def http_get(resource: str):
+        response = requests.get(url=f"{ConnectionController.URL}/{resource}", headers={"Content-Type": "application/json"})
+        return response
 
-def test_get_orange_by_ID():
-    global orange_id
-    response = connectionController.http_get(f"dishes/{orange_id}")
-    sodium = int(response.json()["sodium"])
-    
-    assert (sodium >= .9) and (sodium <= 1.1)
-    assert response.status_code == 200
+    @staticmethod
+    def http_delete(resource: str):
+        response = requests.delete(url=f"{ConnectionController.URL}/{resource}", headers={"Content-Type": "application/json"})
+        return response
 
-def test_get_dishes():
-    response = connectionController.http_get("dishes")
+    @staticmethod
+    def http_post(resource: str, data: {}):
+        response = requests.post(url=f"{ConnectionController.URL}/{resource}", headers={"Content-Type": "application/json"},
+                                 data=json.dumps(data))
+        return response
+
+    @staticmethod
+    def http_put(resource: str, data: {}):
+        response = requests.put(url=f"{ConnectionController.URL}/{resource}", headers={"Content-Type": "application/json"},
+                                data=json.dumps(data))
+        return response
+
+    @staticmethod
+    def post_raw(resource: str, data: {}, headers: {}):
+        response = requests.post(url=f"{ConnectionController.URL}/{resource}", headers=headers, data=json.dumps(data))
+        return response
+
+    @staticmethod
+    def add_dish(name: str) -> int:
+        dish = {"name": name}
+        response = ConnectionController.http_post("dishes", dish)
+        Assertion.assert_valid_added_resource(response)
+        return response.json()
+
+    @staticmethod
+    def add_meal(name: str, appetizer_id: int, main_id: int, dessert_id: int) -> int:
+        meal = {
+            "name": name,
+            "appetizer": appetizer_id,
+            "main": main_id,
+            "dessert": dessert_id
+        }
+        response = ConnectionController.http_post("meals", meal)
+        Assertion.assert_valid_added_resource(response)
+        assert response.json() > 0
+        return response.json()
+
+
+class Assertion:
+
+    @staticmethod
+    def assert_ret_value(response: requests.Response, returned_value: any):
+        assert response.json() == returned_value
+
+    @staticmethod
+    def assert_err_code(response: requests.Response, error_code: int):
+        assert response.status_code == error_code
+
+    @staticmethod
+    def assert_valid_added_resource(response: requests.Response):
+        assert response.status_code == 201
+
+
+orange_dish_id: int = None
+spaghetti_dish_id: int = None
+apple_pie_dish_id: int = None
+
+
+def test_1():
+    global orange_dish_id, apple_pie_dish_id, spaghetti_dish_id
+    orange_dish_id = ConnectionController.add_dish("orange")
+    spaghetti_dish_id = ConnectionController.add_dish("spaghetti")
+    apple_pie_dish_id = ConnectionController.add_dish("apple pie")
+    assert orange_dish_id != spaghetti_dish_id
+    assert orange_dish_id != apple_pie_dish_id
+    assert spaghetti_dish_id != apple_pie_dish_id
+
+
+def test_2():
+    global orange_dish_id
+    assert orange_dish_id is not None
+
+    response = ConnectionController.http_get(f"dishes/{orange_dish_id}")
+    Assertion.assert_err_code(response, error_code=200)
+
+    orange_sodium = response.json()["sodium"]
+    assert 0.9 <= orange_sodium <= 1.1
+
+
+def test_3():
+    response = ConnectionController.http_get("dishes")
+    Assertion.assert_err_code(response, error_code=200)
+
     dishes = response.json()
     assert len(dishes) == 3
-    assert response.status_code == 200
 
-def test_add_bad_dish():
-    dish = {"name": "blah"}
-    response = connectionController.http_post("dishes", dish)
-    return_code = int(response.json())
-    assert return_code == -3
-    assert ((response.status_code == 404) or (response.status_code == 400)) or (response.status_code == 422)
 
-def test_add_existing_dish():
-    dish = {"name": "orange"}
-    response = connectionController.http_post("dishes", dish)
-    return_code = int(response.json())
-    assert return_code == -2
-    assert ((response.status_code == 404) or (response.status_code == 400)) or (response.status_code == 422)
+def test_4():
+    INVALID_DISH = {"name": "blah"}
+    response = ConnectionController.http_post("dishes", INVALID_DISH)
+    Assertion.assert_ret_value(response, -3)
+    assert response.status_code == 404 or response.status_code == 400 or response.status_code == 422
 
-def test_add_meal():
-    global orange_id
-    global spaghetti_id
-    global applepie_id
-    global delicious_id
-    delicious_id = add_meal("delicious", orange_id, spaghetti_id, applepie_id)
-    assert int(delicious_id) > 0
 
-def test_get_meals():
-    global delicious_id
-    response = connectionController.http_get(f"meals")
-    meal = response.json()
-    cal = meal[str(delicious_id)]["cal"]
-    assert len(meal) == 1
-    assert (cal >= 400) and (cal <= 500)
-    assert response.status_code == 200
+def test_5():
+    DISH_NAME = "orange"
+    response = ConnectionController.http_post("dishes", {"name": DISH_NAME})
+    Assertion.assert_ret_value(response, -2)
+    assert response.status_code == 404 or response.status_code == 400 or response.status_code == 422
 
-def test_add_existing_meal():
-    global orange_id
-    global spaghetti_id
-    global applepie_id
-    meal = {
-        "name": "delicious",
-        "appetizer": orange_id,
-        "main": spaghetti_id,
-        "dessert": applepie_id
-    }
-    response = connectionController.http_post("meals", meal)
-    return_code = int(response.json())
-    
-    assert (response.status_code == 400) or (response.status_code == 422)
-    assert return_code == -2
+
+def test_6():
+    global orange_dish_id, apple_pie_dish_id, spaghetti_dish_id
+    assert orange_dish_id is not None
+    assert apple_pie_dish_id is not None
+    assert spaghetti_dish_id is not None
+
+    ConnectionController.add_meal("delicious", orange_dish_id, spaghetti_dish_id, apple_pie_dish_id)
+
+
+def test_7():
+    response = ConnectionController.http_get("meals")
+    Assertion.assert_err_code(response, error_code=200)
+    meals = response.json()
+    assert len(meals) == 1
+
+    for key in meals:
+        assert 400 <= meals[key]["cal"] <= 500
+
+
+def test_8():
+    global orange_dish_id, apple_pie_dish_id, spaghetti_dish_id
+    assert orange_dish_id is not None
+    assert apple_pie_dish_id is not None
+    assert spaghetti_dish_id is not None
+    meal = {"name": "delicious", "appetizer": orange_dish_id, "main": spaghetti_dish_id, "dessert": apple_pie_dish_id}
+    response = ConnectionController.http_post("meals", meal)
+    Assertion.assert_ret_value(response, returned_value=-2)
+    assert response.status_code == 400 or response.status_code == 422
